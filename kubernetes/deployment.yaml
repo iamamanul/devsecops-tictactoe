@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -41,4 +42,49 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
       imagePullSecrets:
+=======
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tic-tac-toe
+  labels:
+    app: tic-tac-toe
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tic-tac-toe
+  template:
+    metadata:
+      labels:
+        app: tic-tac-toe
+    spec:
+      containers:
+      - name: tic-tac-toe
+        image: ghcr.io/iamamanul/devsecops-tictactoe:sha-cd71c281046d5ad0765896fa02cee9ebc34f3adc
+        # Image will be automatically updated by CI/CD pipeline
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.2"
+            memory: "256Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      imagePullSecrets:
+>>>>>>> c24c5ba (Commit local updates before pulling remote changes)
       - name: github-container-registry
