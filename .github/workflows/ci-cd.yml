@@ -128,7 +128,7 @@ jobs:
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
-          vuln-type: 'os,library'
+          vuln-type: 'os,library'                                  # Scan the Docker image for vulnerabilities using Trivy
           severity: 'CRITICAL,HIGH'
       
       - name: Push Docker image
@@ -137,7 +137,7 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.meta.outputs.labels }}                  # Push the built Docker image to the registry
       
       - name: Set image tag output
         id: set_output
@@ -164,7 +164,7 @@ jobs:
           IMAGE_TAG: sha-${{ github.sha }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           REGISTRY: ghcr.io
-        run: |
+        run: |                                                                   # This step updates the Kubernetes deployment YAML file to use the new Docker image tag
           # Define the new image with tag
           NEW_IMAGE="${REGISTRY}/${GITHUB_REPOSITORY}:${IMAGE_TAG}"
           
@@ -172,11 +172,12 @@ jobs:
           sed -i "s|image: ${REGISTRY}/.*|image: ${NEW_IMAGE}|g" kubernetes/deployment.yaml
           
           # Verify the change
-          echo "Updated deployment to use image: ${NEW_IMAGE}"
+          echo "Updated deployment to use image: ${NEW_IMAGE}"                    
           grep -A 1 "image:" kubernetes/deployment.yaml
       
-      - name: Commit and push changes
+      - name: Commit and push changes                                           # This step commits and pushes the updated deployment file back to the repository
         run: |
           git add kubernetes/deployment.yaml
           git commit -m "Update Kubernetes deployment with new image tag: ${{ needs.docker.outputs.image_tag }} [skip ci]" || echo "No changes to commit"
+          git pull --rebase origin main
           git push
